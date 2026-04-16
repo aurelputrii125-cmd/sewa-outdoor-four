@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>°four.tektokers🏕️° - Booking Outdoor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="glass-card">
+        <h2>°four.tektokers🏕️°</h2>
+        <h3>* ✨Booking Alat Outdoor ⛰️</h3>
+        
+        <form id="bookingForm" onsubmit="prosesBooking(event)">
+            <div class="input-group">
+                <label>Nama Peminjam</label>
+                <input type="text" name="nama" placeholder="Masukkan nama" required>
+            </div>
+
+            <div class="input-group">
+                <label>Nomor Telepon</label>
+                <input type="tel" name="telepon" placeholder="Masukkan nomor telepon" required>
+            </div>
+
+            <div class="input-group">
+                <label>Pilih Alat</label>
+                <select name="alat_id" id="alat_id" required>
+                    <option value="">-- Pilih Alat --</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Jumlah Unit</label>
+                <input type="number" name="jumlah" min="1" value="1" required>
+            </div>
+
+            <div class="input-group">
+                <label>Tanggal Booking</label>
+                <input type="date" name="tgl_booking" required>
+            </div>
+
+            <div class="input-group">
+                <label>Tanggal Pengembalian</label>
+                <input type="date" name="tgl_kembali" required>
+            </div>
+
+            <button type="submit">Sewa Sekarang</button>
+        </form>
+
+        <div class="footer-ig">📸 @four.tektokers</div>
+    </div>
+
+    <script>
+        // Fungsi untuk mengambil daftar alat dari database
+        async function ambilData() {
+            try {
+                const respon = await fetch('/api/inventory');
+                const data = await respon.json();
+                const selectAlat = document.getElementById('alat_id');
+                
+                // Bersihkan dropdown kecuali opsi pertama
+                selectAlat.innerHTML = '<option value="">-- Pilih Alat --</option>';
+
+                data.forEach(item => {
+                    const opsi = document.createElement('option');
+                    opsi.value = item.id;
+                    // MERUBAH DI SINI: Hanya menampilkan nama_alat tanpa harga
+                    opsi.textContent = item.nama_alat; 
+                    selectAlat.appendChild(opsi);
+                });
+            } catch (error) {
+                console.error("Gagal memuat alat:", error);
+            }
+        }
+
+        // Fungsi untuk mengirim data booking
+        async function prosesBooking(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            try {
+                const respon = await fetch('/api/book', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data) 
+                });
+                const hasil = await respon.json();
+                alert(hasil.message);
+                if (respon.ok) e.target.reset();
+            } catch (error) {
+                alert("Gagal menghubungi server!");
+            }
+        }
+
+        // Memanggil fungsi saat halaman dimuat
+        ambilData();
+    </script>
+</body>
+</html>
